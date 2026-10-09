@@ -1,0 +1,1 @@
+# qubnix-adminka-basic
