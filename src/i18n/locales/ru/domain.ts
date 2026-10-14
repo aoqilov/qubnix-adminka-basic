@@ -13,9 +13,11 @@ const domain = {
     cancelled: "Отменён",
     failed: "Ошибка",
   },
-  orderPurpose: {
-    create_organization: "Новая компания",
-    renew_subscription: "Продление",
+  companyEvent: {
+    organization_purchased: "Покупка компании",
+    subscription_renewed: "Продление",
+    plan_changed: "Смена тарифа",
+    payment_cancelled: "Отмена платежа",
   },
   duration: "{{count}} мес.",
   statsDepth: {

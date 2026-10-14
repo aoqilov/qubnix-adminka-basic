@@ -42,10 +42,10 @@ export function useFormatters() {
       number: (value: number) => integer.format(value),
       compact: (value: number) => compact.format(value),
       decimal: (value: number) => decimal.format(value),
-      /** 149 000 сум */
-      money: (value: number) => `${integer.format(value)} ${currency}`,
+      /** 149 000 сум. Backend so'mni ko'pincha string (`"149000"`) qilib beradi — ikkalasi ham qabul. */
+      money: (value: number | string) => `${integer.format(Number(value))} ${currency}`,
       /** 36,5 млн сум */
-      moneyCompact: (value: number) => `${compact.format(value)} ${currency}`,
+      moneyCompact: (value: number | string) => `${compact.format(Number(value))} ${currency}`,
       /** 0..1 → 13,7 % */
       percent: (fraction: number) => percent.format(fraction),
       /** +10,1 % — nisbiy o'zgarish. */

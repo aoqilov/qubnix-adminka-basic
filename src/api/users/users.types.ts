@@ -1,33 +1,52 @@
-import type { Pagination } from "@/types/api";
+import type { Pagination, SortOrder } from "@/types/api";
 
-/** qubnix `GET /api/v1/users/me` dagi `user` bilan bir xil shakl (swagger). */
-export interface RawUser {
-  id: number;
-  telegram_id: string;
-  telegram_username: string | null;
-  telegram_first_name: string;
-  telegram_last_name: string | null;
-  telegram_avatar_url: string | null;
+/**
+ * swagger: GET /dashboard/client-users — qubnix foydalanuvchisi + xarid statistikasi.
+ * Id'lar va so'm summalari string (katta son aniqligi saqlanadi).
+ */
+export interface ClientUser {
+  id: string;
   first_name: string;
   last_name: string;
   phone_number: string;
-  index_quality: number;
+  telegram_id: string;
+  telegram_username: string | null;
+  telegram_avatar_url: string | null;
+  telegram_bot_active: boolean;
   registered_at: string;
+  created_at: string;
+  /** To'langan `create_organization` buyurtmalari bo'yicha alohida kompaniyalar (o'chirilganlari ham). */
+  purchased_organizations_count: number;
+  /** Hozir egasi bo'lgan jamoa kompaniyalari. */
+  owned_organizations_count: number;
+  active_paid_organizations_count: number;
+  paid_payments_count: number;
+  /** Faqat hozir `paid` buyurtmalar, so'm. */
+  total_spent_uzs: string;
+  last_payment_at: string | null;
 }
 
-/** Admin ro'yxati qatori: foydalanuvchi + u egasi bo'lgan (sotib olingan) kompaniyalar soni. */
-export interface AdminUserRow extends RawUser {
-  companies_count: number;
-}
+export type ClientUsersSortBy =
+  | "registered_at"
+  | "first_name"
+  | "purchased_organizations_count"
+  | "owned_organizations_count"
+  | "active_paid_organizations_count"
+  | "paid_payments_count"
+  | "total_spent_uzs"
+  | "last_payment_at";
 
 export interface ListUsersParams {
   page?: number;
+  /** 1..100, standart 20. */
   limit?: number;
-  /** Ism, familiya, telefon yoki username bo'yicha. */
+  /** Ism, telefon, username yoki id bo'yicha. */
   search?: string;
+  sort_by?: ClientUsersSortBy;
+  sort_order?: SortOrder;
 }
 
 export interface ListUsersResponse {
-  users: AdminUserRow[];
+  users: ClientUser[];
   pagination: Pagination;
 }

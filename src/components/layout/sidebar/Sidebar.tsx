@@ -2,9 +2,7 @@ import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { LuPanelLeftClose, LuPanelLeftOpen } from "react-icons/lu";
 import { useUiStore } from "@/store/ui.store";
-import { USE_MOCK } from "@/api-config/mock";
 import { NAV_GROUPS } from "@/const/navigation";
-import { CusBadge } from "@/components/ui/badge/CusBadge";
 import { QubnixLogoIntro } from "@/components/shared/enter-logo-page/EnterLogoPage";
 
 function navLinkClass(isActive: boolean, collapsed: boolean) {
@@ -73,15 +71,10 @@ export function Sidebar() {
       </nav>
 
       {!collapsed && (
-        <div className="flex flex-none items-center justify-between gap-2 border-t border-subtle px-5 py-3">
+        <div className="flex flex-none items-center gap-2 border-t border-subtle px-5 py-3">
           <span className="text-xs text-disabled">
             {t("layout.sidebar.version", { version: __APP_VERSION__ })}
           </span>
-          {USE_MOCK && (
-            <CusBadge tone="warning" size="sm" dot>
-              {t("layout.sidebar.mockData")}
-            </CusBadge>
-          )}
         </div>
       )}
     </aside>

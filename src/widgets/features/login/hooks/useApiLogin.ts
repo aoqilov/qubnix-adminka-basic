@@ -7,6 +7,6 @@ export function useLogin() {
   const setSession = useSessionStore((s) => s.setSession);
   return useMutation({
     mutationFn: authApi.login,
-    onSuccess: ({ token, admin }) => setSession(token, admin),
+    onSuccess: ({ access_token, user }) => setSession(access_token, user),
   });
 }

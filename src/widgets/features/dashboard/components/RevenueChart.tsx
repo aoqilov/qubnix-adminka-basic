@@ -4,14 +4,14 @@ import { ColumnChart } from "@/components/shared/charts/ColumnChart";
 import { SERIES_COLORS } from "@/components/shared/charts/chartTokens";
 import type { ColumnDef } from "@/components/ui/table/CusTable";
 import { useFormatters } from "@/utils/format";
-import type { MonthlyRevenuePoint } from "@/api/dashboard/dashboard.types";
+import type { RevenuePoint } from "../hooks/useApiDashboard";
 
-interface RevenueRow extends MonthlyRevenuePoint {
+interface RevenueRow extends RevenuePoint {
   id: number;
 }
 
 /** Oylik tushum: ustunli grafik + "Таблица" ko rinishi. */
-export function RevenueChart({ data }: { data: MonthlyRevenuePoint[] }) {
+export function RevenueChart({ data }: { data: RevenuePoint[] }) {
   const { t } = useTranslation();
   const fmt = useFormatters();
   const rows: RevenueRow[] = data.map((point, index) => ({ ...point, id: index }));

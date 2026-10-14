@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Backend manzili — hozircha ishlatilmaydi, barcha so'rovlar mock (api-config/mock.ts). */
+  /** Backend manzili (qubnix Dashboard API), masalan `https://app.qubnix.uz`. */
   readonly VITE_API_URL?: string;
 }
 

@@ -2,12 +2,12 @@ import { useTranslation } from "react-i18next";
 import { CusCardbox } from "@/components/ui/cardbox/CusCardbox";
 import { CusTable, type ColumnDef } from "@/components/ui/table/CusTable";
 import { useFormatters } from "@/utils/format";
-import type { PlanShareRow } from "@/api/dashboard/dashboard.types";
+import type { PlanStatsRow } from "@/api/dashboard/dashboard.types";
 
-type Row = PlanShareRow & { id: number };
+type Row = PlanStatsRow & { id: number };
 
-/** Faol kompaniyalar va tushum — tariflar kesimida. */
-export function PlanShareCard({ rows }: { rows: PlanShareRow[] }) {
+/** Davr ichida tariflar kesimida: sotib olgan kompaniyalar, xaridlar (yangi + uzaytirish) va tushum. */
+export function PlanShareCard({ rows }: { rows: PlanStatsRow[] }) {
   const { t } = useTranslation();
   const fmt = useFormatters();
   const data: Row[] = rows.map((row) => ({ ...row, id: row.plan_id }));
@@ -18,13 +18,19 @@ export function PlanShareCard({ rows }: { rows: PlanShareRow[] }) {
       key: "companies",
       header: t("sections.dashboard.planShare.companies"),
       align: "right",
-      render: (row) => fmt.number(row.companies),
+      render: (row) => fmt.number(row.organizations_count),
+    },
+    {
+      key: "purchases",
+      header: t("sections.dashboard.planShare.purchases"),
+      align: "right",
+      render: (row) => fmt.number(row.purchases_count),
     },
     {
       key: "revenue",
       header: t("sections.dashboard.planShare.revenue"),
       align: "right",
-      render: (row) => fmt.money(row.revenue),
+      render: (row) => fmt.money(row.revenue_uzs),
     },
   ];
 

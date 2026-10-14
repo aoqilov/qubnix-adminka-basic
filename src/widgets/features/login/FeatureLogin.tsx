@@ -1,10 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { CusCardbox } from "@/components/ui/cardbox/CusCardbox";
 import { QubnixLogoIntro } from "@/components/shared/enter-logo-page/EnterLogoPage";
-import { USE_MOCK } from "@/api-config/mock";
 import { useUiStore } from "@/store/ui.store";
 import { LoginForm } from "./components/LoginForm";
-import { MockAccountsHint } from "./components/MockAccountsHint";
 
 /** Sessiya yo'q bo'lsa AppRoutes butun router o'rniga shuni ko'rsatadi. */
 export default function FeatureLogin() {
@@ -20,8 +18,6 @@ export default function FeatureLogin() {
         </div>
 
         <LoginForm />
-
-        {USE_MOCK && <MockAccountsHint />}
       </CusCardbox>
     </div>
   );

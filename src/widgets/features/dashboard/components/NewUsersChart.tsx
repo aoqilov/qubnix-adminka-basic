@@ -4,14 +4,14 @@ import { TimeSeriesChart } from "@/components/shared/charts/TimeSeriesChart";
 import { SERIES_COLORS } from "@/components/shared/charts/chartTokens";
 import type { ColumnDef } from "@/components/ui/table/CusTable";
 import { useFormatters } from "@/utils/format";
-import type { MonthlyUsersPoint } from "@/api/dashboard/dashboard.types";
+import type { UsersPoint } from "../hooks/useApiDashboard";
 
-interface UsersRow extends MonthlyUsersPoint {
+interface UsersRow extends UsersPoint {
   id: number;
 }
 
 /** Oylik yangi foydalanuvchilar: trend chizig i + "Таблица" ko rinishi. */
-export function NewUsersChart({ data }: { data: MonthlyUsersPoint[] }) {
+export function NewUsersChart({ data }: { data: UsersPoint[] }) {
   const { t } = useTranslation();
   const fmt = useFormatters();
   const rows: UsersRow[] = data.map((point, index) => ({ ...point, id: index }));

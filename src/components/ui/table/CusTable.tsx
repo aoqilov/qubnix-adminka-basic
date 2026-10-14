@@ -16,7 +16,10 @@ export interface ColumnDef<T> {
   children?: ColumnDef<T>[];
 }
 
-interface CusTableProps<T extends { id: number }> {
+/** Backend katta id'larni string qilib beradi — qator kaliti son ham, string ham bo'lishi mumkin. */
+export type RowId = number | string;
+
+interface CusTableProps<T extends { id: RowId }> {
   data: T[];
   columns: ColumnDef<T>[];
 
@@ -37,8 +40,8 @@ interface CusTableProps<T extends { id: number }> {
   onRowClick?: (row: T, index: number) => void;
 
   selectable?: boolean;
-  selectedRows?: number[];
-  onSelectionChange?: (ids: number[]) => void;
+  selectedRows?: RowId[];
+  onSelectionChange?: (ids: RowId[]) => void;
   onSelectionRowsChange?: (rows: T[]) => void;
 
   colorHeader?: string;
@@ -79,7 +82,7 @@ function getLeafColumns<T>(cols: ColumnDef<T>[]): ColumnDef<T>[] {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function CusTable<T extends { id: number }>({
+export function CusTable<T extends { id: RowId }>({
   data,
   columns,
   variant = "line",
@@ -113,10 +116,10 @@ export function CusTable<T extends { id: number }>({
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>(null);
 
-  const [internalSelected, setInternalSelected] = useState<number[]>([]);
+  const [internalSelected, setInternalSelected] = useState<RowId[]>([]);
   const selected = selectedRows ?? internalSelected;
 
-  const setSelected = (nextIds: number[]) => {
+  const setSelected = (nextIds: RowId[]) => {
     setInternalSelected(nextIds);
     onSelectionChange?.(nextIds);
     if (onSelectionRowsChange) {
@@ -158,7 +161,7 @@ export function CusTable<T extends { id: number }>({
   function toggleAll() {
     setSelected(allSelected ? [] : sorted.map((r) => r.id));
   }
-  function toggleRow(id: number) {
+  function toggleRow(id: RowId) {
     setSelected(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
   }
 

@@ -1,4 +1,4 @@
-// qubnix domenining umumiy qiymatlari — API type'lari va mock shularni ishlatadi (swagger bilan bir xil).
+// qubnix domenining umumiy qiymatlari — API type'lari shularni ishlatadi (swagger bilan bir xil).
 
 export type PlanDurationMonths = 1 | 3 | 6 | 12;
 export const PLAN_DURATIONS: readonly PlanDurationMonths[] = [1, 3, 6, 12];
@@ -8,7 +8,5 @@ export type StatsDepth = "today" | "3months" | "full";
 export const STATS_DEPTHS: readonly StatsDepth[] = ["today", "3months", "full"];
 
 export type SubscriptionStatus = "active" | "expired" | "cancelled";
-export const SUBSCRIPTION_STATUSES: readonly SubscriptionStatus[] = ["active", "expired", "cancelled"];
 
 export type SubscriptionOrderStatus = "created" | "pending" | "paid" | "cancelled" | "failed";
-export type SubscriptionOrderPurpose = "create_organization" | "renew_subscription";

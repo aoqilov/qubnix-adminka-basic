@@ -5,8 +5,8 @@ import { useLogout } from "@/hooks/useLogout";
 import { avatarColorVar } from "@/utils/avatarColor";
 import { CusPopover } from "@/components/ui/popover/CusPopover";
 
-function initialsOf(fullName: string): string {
-  return fullName
+function initialsOf(name: string): string {
+  return name
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -34,10 +34,10 @@ export function ProfileMenu() {
             className="flex size-9 flex-none items-center justify-center rounded-avatar text-sm font-semibold text-on-brand"
             style={{ background: avatarColorVar(String(admin.id)) }}
           >
-            {initialsOf(admin.fullName)}
+            {initialsOf(admin.name)}
           </span>
           <span className="flex min-w-0 flex-col">
-            <span className="max-w-[180px] truncate text-sm font-semibold text-primary">{admin.fullName}</span>
+            <span className="max-w-[180px] truncate text-sm font-semibold text-primary">{admin.name}</span>
             <span className="text-xs text-secondary">{t(`layout.roles.${admin.role}`)}</span>
           </span>
           <LuChevronDown
@@ -53,7 +53,7 @@ export function ProfileMenu() {
             type="button"
             onClick={() => {
               close();
-              void logout();
+              logout();
             }}
             className="flex w-full items-center gap-2 rounded-input px-3 py-2 text-sm font-medium text-error-strong hover:bg-surface-secondary"
           >

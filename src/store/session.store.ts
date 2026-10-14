@@ -22,7 +22,7 @@ function writeStoredToken(value: string | null): void {
 }
 
 interface SessionState {
-  /** `POST /admin/auth/login` javobidagi token — localStorage'da, sahifa yangilansa ham qoladi. */
+  /** `POST /dashboard/auth/login` javobidagi `access_token` (24 soat) — localStorage'da, sahifa yangilansa ham qoladi. */
   token: string | null;
   admin: AdminUser | null;
   /** `routes/AppRoutes.tsx` shunga qarab login, yuklanish yoki panelni ko'rsatadi. */

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// Hozircha hech qanday so'rov ketmaydi (USE_MOCK, ./mock.ts) — backend ulanganda shu instans ishlaydi.
+// Backend: qubnix Dashboard API (swigerjsonDash.json), manzil — `VITE_API_URL` (.env).
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {

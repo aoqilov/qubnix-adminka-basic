@@ -12,7 +12,6 @@ const layout = {
   sidebar: {
     collapse: "Свернуть меню",
     expand: "Развернуть меню",
-    mockData: "Mock-данные",
     version: "Версия {{version}}",
   },
   header: {
@@ -21,9 +20,8 @@ const layout = {
     logout: "Выйти",
   },
   roles: {
+    owner: "Владелец",
     admin: "Администратор",
-    
-    
   },
 };
 

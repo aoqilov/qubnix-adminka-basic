@@ -1,36 +1,36 @@
 import { api } from "@/api-config/axiosInstance";
-import { USE_MOCK } from "@/api-config/mock";
-import { plansMock } from "@/api/plans/plans.mock";
-import type { PlanInput, RawSubscriptionPlan, UpdatePlanInput } from "@/api/plans/plans.types";
+import type {
+  CreatePlanInput,
+  PlanPriceInput,
+  RawSubscriptionPlan,
+  UpdatePlanInput,
+  UpdatePlanPriceInput,
+} from "@/api/plans/plans.types";
 import type { ApiEnvelope } from "@/types/api";
 
-// Endpoint yo'llari — taklif (backend bilan hali kelishilmagan).
+const BASE = "/api/v1/dashboard/subscription-plans";
+
+type PlanEnvelope = ApiEnvelope<{ plan: RawSubscriptionPlan }>;
+
 export const plansApi = {
+  /** O'chirilmaganlar, nofaollari ham. */
   list: (): Promise<RawSubscriptionPlan[]> =>
-    USE_MOCK
-      ? plansMock.list()
-      : api
-          .get<ApiEnvelope<{ plans: RawSubscriptionPlan[] }>>("/api/v1/admin/subscription-plans")
-          .then((r) => r.data.data.plans),
+    api.get<ApiEnvelope<{ plans: RawSubscriptionPlan[] }>>(BASE).then((r) => r.data.data.plans),
 
-  create: (payload: PlanInput): Promise<RawSubscriptionPlan> =>
-    USE_MOCK
-      ? plansMock.create(payload)
-      : api
-          .post<ApiEnvelope<{ plan: RawSubscriptionPlan }>>("/api/v1/admin/subscription-plans", { data: payload })
-          .then((r) => r.data.data.plan),
+  create: (payload: CreatePlanInput): Promise<RawSubscriptionPlan> =>
+    api.post<PlanEnvelope>(BASE, { data: payload }).then((r) => r.data.data.plan),
 
-  update: (id: number, payload: UpdatePlanInput): Promise<RawSubscriptionPlan> =>
-    USE_MOCK
-      ? plansMock.update(id, payload)
-      : api
-          .patch<ApiEnvelope<{ plan: RawSubscriptionPlan }>>(`/api/v1/admin/subscription-plans/${id}`, {
-            data: payload,
-          })
-          .then((r) => r.data.data.plan),
+  update: (planId: number, payload: UpdatePlanInput): Promise<RawSubscriptionPlan> =>
+    api.patch<PlanEnvelope>(`${BASE}/${planId}`, { data: payload }).then((r) => r.data.data.plan),
 
-  remove: (id: number): Promise<void> =>
-    USE_MOCK
-      ? plansMock.remove(id)
-      : api.delete(`/api/v1/admin/subscription-plans/${id}`).then(() => undefined),
+  /** Soft delete. Default tarif va ishlatilayotgan tarif — 409. */
+  remove: (planId: number): Promise<void> => api.delete(`${BASE}/${planId}`).then(() => undefined),
+
+  addPrice: (planId: number, payload: PlanPriceInput): Promise<RawSubscriptionPlan> =>
+    api.post<PlanEnvelope>(`${BASE}/${planId}/prices`, { data: payload }).then((r) => r.data.data.plan),
+
+  updatePrice: (planId: number, priceId: number, payload: UpdatePlanPriceInput): Promise<RawSubscriptionPlan> =>
+    api
+      .patch<PlanEnvelope>(`${BASE}/${planId}/prices/${priceId}`, { data: payload })
+      .then((r) => r.data.data.plan),
 };

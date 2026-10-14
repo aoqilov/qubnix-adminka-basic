@@ -46,8 +46,8 @@ export default function FeatureDashboard() {
             </section>
 
             <section className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-4">
-              <PlanShareCard rows={data.plan_share} />
-              <RecentOrdersCard rows={data.recent_orders} />
+              <PlanShareCard rows={data.plan_stats} />
+              <RecentOrdersCard rows={data.recent_payments} />
             </section>
           </div>
         )}

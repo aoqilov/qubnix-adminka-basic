@@ -5,7 +5,7 @@ const sections = {
     subtitle: "Сводка по пользователям, компаниям и выручке",
     kpi: {
       users: "Пользователи",
-      companies: "Купившие компании",
+      companies: "Компании",
       active: "Активные подписки",
       revenue: "Выручка за месяц",
     },
@@ -21,9 +21,10 @@ const sections = {
     },
     planShare: {
       title: "Тарифы",
-      subtitle: "Активные компании и выручка по тарифам",
+      subtitle: "За последние 12 месяцев: компании, покупки и продления, выручка",
       plan: "Тариф",
       companies: "Компании",
+      purchases: "Покупки",
       revenue: "Выручка",
     },
     recent: {
@@ -33,6 +34,7 @@ const sections = {
       period: "Срок",
       amount: "Сумма",
       paidAt: "Оплачен",
+      empty: "Платежей пока нет",
     },
   },
   tariffs: {
@@ -73,8 +75,10 @@ const sections = {
       nameRequired: "Введите название тарифа",
       sortOrder: "Порядок в списке",
       recommended: "Рекомендуемый тариф",
-      recommendedHint: "Выделяется на странице тарифов. Только один тариф может быть рекомендуемым",
+      recommendedHint: "Выделяется на странице тарифов",
       isActive: "Тариф доступен для покупки",
+      isFree: "Бесплатный тариф",
+      isFreeHint: "Без цен. Тип тарифа нельзя изменить после создания",
       limitsTitle: "Лимиты",
       limitMembers: "Сотрудники",
       limitProjects: "Проекты",
@@ -83,11 +87,13 @@ const sections = {
       limitRequired: "Укажите число от 1",
       stats: "Глубина статистики",
       pricesTitle: "Цены по срокам",
-      pricesHint: "Сумма в сумах. Отключённый срок нельзя выбрать при покупке. Все сроки выключены — тариф бесплатный",
+      pricesHint:
+        "Сумма до скидки, в сумах. Отключённый срок нельзя выбрать при покупке; удалить цену нельзя — только отключить",
       amount: "Сумма, сум",
       discount: "Скидка, %",
       amountInvalid: "Укажите сумму",
-      discountInvalid: "От 0 до 100",
+      discountInvalid: "От 0 до {{max}}",
+      activePriceRequired: "Активному платному тарифу нужна хотя бы одна включённая цена",
     },
     delete: {
       title: "Удалить тариф?",
@@ -108,6 +114,8 @@ const sections = {
       phone: "Телефон",
       telegram: "Telegram",
       companies: "Компании",
+      spent: "Оплачено",
+      lastPayment: "Последний платёж",
       registered: "Регистрация",
     },
     total: "Всего: {{count}}",
@@ -115,11 +123,13 @@ const sections = {
   },
   companies: {
     title: "Компании",
-    subtitle: "Компании, купившие подписку",
+    subtitle: "Командные компании, их подписки и платежи",
     search: "Поиск по названию, владельцу или телефону",
-    filters: {
-      allPlans: "Все тарифы",
-      allStatuses: "Все статусы",
+    sort: {
+      newest: "Сначала новые",
+      lastPayment: "По последнему платежу",
+      paid: "По сумме оплат",
+      expires: "Скоро истекают",
     },
     columns: {
       company: "Компания",
@@ -132,16 +142,17 @@ const sections = {
     },
     total: "Всего: {{count}}",
     empty: "Компании не найдены",
-    orders: {
-      title: "Платежи компании",
+    history: {
+      title: "История компании",
       summary: "Тариф {{plan}} · оплачено {{paid}}",
+      counts: "Сотрудники: {{members}} · Проекты: {{projects}} · Задачи: {{tasks}}",
       date: "Дата",
-      purpose: "Назначение",
+      event: "Событие",
       plan: "Тариф",
       period: "Срок",
       amount: "Сумма",
-      status: "Статус",
-      empty: "Платежей нет",
+      status: "Платёж",
+      empty: "Событий нет",
     },
   },
 };

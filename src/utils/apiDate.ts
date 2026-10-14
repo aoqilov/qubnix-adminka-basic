@@ -10,6 +10,23 @@ export function todayApiDate(): string {
   return toApiDate(new Date());
 }
 
+/** Backend statistikasi Asia/Tashkent kalendar kunlarida ishlaydi — "bugun" ham shu zonada olinadi. */
+export function tashkentTodayApiDate(): string {
+  // en-CA formati — YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Tashkent",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+/** `value` oyidan `offset` oy oldingi oyning 1-kuni (YYYY-MM-01). */
+export function monthStartApiDate(value: string, offset = 0): string {
+  const date = fromApiDate(value);
+  return toApiDate(new Date(date.getFullYear(), date.getMonth() - offset, 1));
+}
+
 /** `YYYY-MM-DD` -> mahalliy (local) Date. `new Date(string)` ishlatilmaydi — u UTC deb o'qib, ba'zi zonalarda kunni bir kunga surib yuboradi. */
 export function fromApiDate(value: string): Date {
   const [year, month, day] = value.split("-").map(Number);

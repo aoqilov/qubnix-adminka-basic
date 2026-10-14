@@ -9,7 +9,7 @@ import { CusPagination } from "@/components/ui/table/CusPagination";
 import { avatarColorVar } from "@/utils/avatarColor";
 import { useFormatters } from "@/utils/format";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import type { AdminUserRow } from "@/api/users/users.types";
+import type { ClientUser } from "@/api/users/users.types";
 import { useUsers } from "./hooks/useApiUsers";
 
 const PAGE_SIZE = 20;
@@ -25,7 +25,7 @@ export default function FeatureUsers() {
   const users = query.data?.users ?? [];
   const total = query.data?.pagination.total ?? 0;
 
-  const columns: ColumnDef<AdminUserRow>[] = [
+  const columns: ColumnDef<ClientUser>[] = [
     {
       key: "user",
       header: t("sections.users.columns.user"),
@@ -33,7 +33,7 @@ export default function FeatureUsers() {
         <span className="flex items-center gap-3">
           <span
             className="flex size-8 flex-none items-center justify-center rounded-avatar text-xs font-semibold text-on-brand"
-            style={{ background: avatarColorVar(String(user.id)) }}
+            style={{ background: avatarColorVar(user.id) }}
           >
             {`${user.first_name[0] ?? ""}${user.last_name[0] ?? ""}`.toUpperCase()}
           </span>
@@ -51,7 +51,18 @@ export default function FeatureUsers() {
       key: "companies",
       header: t("sections.users.columns.companies"),
       align: "right",
-      render: (user) => fmt.number(user.companies_count),
+      render: (user) => fmt.number(user.owned_organizations_count),
+    },
+    {
+      key: "spent",
+      header: t("sections.users.columns.spent"),
+      align: "right",
+      render: (user) => fmt.money(user.total_spent_uzs),
+    },
+    {
+      key: "lastPayment",
+      header: t("sections.users.columns.lastPayment"),
+      render: (user) => (user.last_payment_at ? fmt.isoDate(user.last_payment_at) : "—"),
     },
     {
       key: "registered",

@@ -7,8 +7,8 @@ import { CusSwitch } from "@/components/ui/inputs/CusSwitch";
 import CusSelect from "@/components/ui/select/CusSelect";
 import { getApiErrorMessage } from "@/utils/apiErrorMessage";
 import { PLAN_DURATIONS, STATS_DEPTHS, type PlanDurationMonths, type StatsDepth } from "@/types/domain";
-import type { PlanInput, RawSubscriptionPlan } from "@/api/plans/plans.types";
-import { useCreatePlan, useUpdatePlan } from "../hooks/useApiTariffs";
+import type { RawSubscriptionPlan } from "@/api/plans/plans.types";
+import { useCreatePlan, useUpdatePlan, type PlanFormValues } from "../hooks/useApiTariffs";
 
 interface PlanFormDrawerProps {
   open: boolean;
@@ -20,6 +20,9 @@ interface PlanFormDrawerProps {
 
 type LimitKey = "members" | "projects" | "routines";
 const LIMIT_KEYS: readonly LimitKey[] = ["members", "projects", "routines"];
+
+/** Backend chegirmani 0..99 % qabul qiladi — to'lov kamida 1 so'm qolishi kerak. */
+const MAX_DISCOUNT = 99;
 
 interface LimitField {
   unlimited: boolean;
@@ -35,6 +38,7 @@ interface PriceField {
 interface FormState {
   name: string;
   sortOrder: string;
+  isFree: boolean;
   recommended: boolean;
   isActive: boolean;
   limits: Record<LimitKey, LimitField>;
@@ -54,6 +58,7 @@ function initialState(plan: RawSubscriptionPlan | null, nextSortOrder: number): 
   return {
     name: plan?.name ?? "",
     sortOrder: String(plan?.sort_order ?? nextSortOrder),
+    isFree: plan?.is_free ?? false,
     recommended: plan?.recommended ?? false,
     isActive: plan?.is_active ?? true,
     limits: {
@@ -73,7 +78,7 @@ function initialState(plan: RawSubscriptionPlan | null, nextSortOrder: number): 
 
 const isPositiveInt = (value: string) => /^\d+$/.test(value) && Number(value) >= 1;
 
-/** Tarif yaratish/tahrirlash: nom, tartib, limitlar, davrlar bo yicha narxlar. */
+/** Tarif yaratish/tahrirlash: nom, tartib, limitlar, muddatlar bo'yicha narxlar. */
 export function PlanFormDrawer(props: PlanFormDrawerProps) {
   // Har ochilishda forma yangidan boshlansin — `key` holatni tozalaydi.
   return <PlanForm key={props.open ? (props.plan?.id ?? "new") : "closed"} {...props} />;
@@ -97,24 +102,30 @@ function PlanForm({ open, plan, onClose, onSaved }: PlanFormDrawerProps) {
       prices: { ...current.prices, [months]: { ...current.prices[months], ...changes } },
     }));
 
+  const priceEnabled = (months: PlanDurationMonths) => !form.isFree && form.prices[months].enabled;
   const nameError = !form.name.trim() ? t("sections.tariffs.form.nameRequired") : undefined;
   const limitError = (key: LimitKey) =>
     !form.limits[key].unlimited && !isPositiveInt(form.limits[key].value)
       ? t("sections.tariffs.form.limitRequired")
       : undefined;
   const amountError = (months: PlanDurationMonths) =>
-    form.prices[months].enabled && !isPositiveInt(form.prices[months].amount)
+    priceEnabled(months) && !isPositiveInt(form.prices[months].amount)
       ? t("sections.tariffs.form.amountInvalid")
       : undefined;
   const discountError = (months: PlanDurationMonths) => {
     const value = form.prices[months].discount;
-    return form.prices[months].enabled && !(/^\d+$/.test(value) && Number(value) <= 100)
-      ? t("sections.tariffs.form.discountInvalid")
+    return priceEnabled(months) && !(/^\d+$/.test(value) && Number(value) <= MAX_DISCOUNT)
+      ? t("sections.tariffs.form.discountInvalid", { max: MAX_DISCOUNT })
       : undefined;
   };
+  const pricesError =
+    !form.isFree && form.isActive && !PLAN_DURATIONS.some(priceEnabled)
+      ? t("sections.tariffs.form.activePriceRequired")
+      : undefined;
 
   const isValid =
     !nameError &&
+    !pricesError &&
     LIMIT_KEYS.every((key) => !limitError(key)) &&
     PLAN_DURATIONS.every((months) => !amountError(months) && !discountError(months)) &&
     /^\d+$/.test(form.sortOrder);
@@ -125,10 +136,11 @@ function PlanForm({ open, plan, onClose, onSaved }: PlanFormDrawerProps) {
     if (!isValid) return;
 
     const limitValue = (key: LimitKey) => (form.limits[key].unlimited ? null : Number(form.limits[key].value));
-    const input: PlanInput = {
+    const values: PlanFormValues = {
       name: form.name.trim(),
-      recommended: form.recommended,
+      is_free: form.isFree,
       is_active: form.isActive,
+      is_recommended: form.recommended,
       sort_order: Number(form.sortOrder),
       limits: {
         members: limitValue("members"),
@@ -136,11 +148,10 @@ function PlanForm({ open, plan, onClose, onSaved }: PlanFormDrawerProps) {
         routines: limitValue("routines"),
         stats: form.stats,
       },
-      prices: PLAN_DURATIONS.filter((months) => form.prices[months].enabled).map((months) => ({
+      prices: PLAN_DURATIONS.filter(priceEnabled).map((months) => ({
         duration_months: months,
         amount: Number(form.prices[months].amount),
         discount_percent: Number(form.prices[months].discount),
-        is_active: true,
       })),
     };
     const options = {
@@ -148,11 +159,11 @@ function PlanForm({ open, plan, onClose, onSaved }: PlanFormDrawerProps) {
     };
     if (plan) {
       updatePlan.mutate(
-        { id: plan.id, input },
+        { plan, values },
         { ...options, onSuccess: () => onSaved(t("sections.tariffs.toast.updated")) },
       );
     } else {
-      createPlan.mutate(input, { ...options, onSuccess: () => onSaved(t("sections.tariffs.toast.created")) });
+      createPlan.mutate(values, { ...options, onSuccess: () => onSaved(t("sections.tariffs.toast.created")) });
     }
   }
 
@@ -213,6 +224,13 @@ function PlanForm({ open, plan, onClose, onSaved }: PlanFormDrawerProps) {
             checked={form.recommended}
             onCheckedChange={(checked) => patch({ recommended: checked })}
           />
+          <CusSwitch
+            label={t("sections.tariffs.form.isFree")}
+            description={t("sections.tariffs.form.isFreeHint")}
+            checked={form.isFree}
+            disabled={plan !== null}
+            onCheckedChange={(checked) => patch({ isFree: checked })}
+          />
         </section>
 
         <section className="flex flex-col gap-3">
@@ -244,42 +262,45 @@ function PlanForm({ open, plan, onClose, onSaved }: PlanFormDrawerProps) {
           />
         </section>
 
-        <section className="flex flex-col gap-3">
-          <div>
-            <h3 className="text-sm font-semibold text-primary">{t("sections.tariffs.form.pricesTitle")}</h3>
-            <p className="mt-0.5 text-xs text-secondary">{t("sections.tariffs.form.pricesHint")}</p>
-          </div>
-          {PLAN_DURATIONS.map((months) => (
-            <div
-              key={months}
-              className="grid grid-cols-[120px_1fr_120px] items-start gap-3 rounded-card border border-subtle p-3"
-            >
-              <div className="pt-1">
-                <CusSwitch
-                  label={t("domain.duration", { count: months })}
-                  checked={form.prices[months].enabled}
-                  onCheckedChange={(checked) => patchPrice(months, { enabled: checked })}
+        {!form.isFree && (
+          <section className="flex flex-col gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-primary">{t("sections.tariffs.form.pricesTitle")}</h3>
+              <p className="mt-0.5 text-xs text-secondary">{t("sections.tariffs.form.pricesHint")}</p>
+              {show(pricesError) && <p className="mt-1 text-xs text-error-strong">{pricesError}</p>}
+            </div>
+            {PLAN_DURATIONS.map((months) => (
+              <div
+                key={months}
+                className="grid grid-cols-[120px_1fr_120px] items-start gap-3 rounded-card border border-subtle p-3"
+              >
+                <div className="pt-1">
+                  <CusSwitch
+                    label={t("domain.duration", { count: months })}
+                    checked={form.prices[months].enabled}
+                    onCheckedChange={(checked) => patchPrice(months, { enabled: checked })}
+                  />
+                </div>
+                <CusInput
+                  label={t("sections.tariffs.form.amount")}
+                  inputMode="numeric"
+                  disabled={!form.prices[months].enabled}
+                  value={form.prices[months].amount}
+                  errorText={show(amountError(months))}
+                  onChange={(event) => patchPrice(months, { amount: event.target.value.replace(/\D/g, "") })}
+                />
+                <CusInput
+                  label={t("sections.tariffs.form.discount")}
+                  inputMode="numeric"
+                  disabled={!form.prices[months].enabled}
+                  value={form.prices[months].discount}
+                  errorText={show(discountError(months))}
+                  onChange={(event) => patchPrice(months, { discount: event.target.value.replace(/\D/g, "") })}
                 />
               </div>
-              <CusInput
-                label={t("sections.tariffs.form.amount")}
-                inputMode="numeric"
-                disabled={!form.prices[months].enabled}
-                value={form.prices[months].amount}
-                errorText={show(amountError(months))}
-                onChange={(event) => patchPrice(months, { amount: event.target.value.replace(/\D/g, "") })}
-              />
-              <CusInput
-                label={t("sections.tariffs.form.discount")}
-                inputMode="numeric"
-                disabled={!form.prices[months].enabled}
-                value={form.prices[months].discount}
-                errorText={show(discountError(months))}
-                onChange={(event) => patchPrice(months, { discount: event.target.value.replace(/\D/g, "") })}
-              />
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
+        )}
       </div>
     </CusDrawer>
   );

@@ -1,9 +1,6 @@
 import type { PlanDurationMonths, StatsDepth } from "@/types/domain";
 
-/**
- * qubnix `GET /api/v1/subscription-plans` bilan bir xil shakllar (swagger). Admin yo'llari
- * (`/api/v1/admin/subscription-plans`) va CRUD so'rovlari — taklif, backend bilan kelishilmagan.
- */
+// swagger: /api/v1/dashboard/subscription-plans. O'qish — owner va admin, yozish — faqat owner.
 
 /** null — cheksiz. */
 export interface RawPlanLimits {
@@ -16,8 +13,10 @@ export interface RawPlanLimits {
 export interface RawPlanPrice {
   id: number;
   duration_months: PlanDurationMonths;
-  /** so'm */
+  /** Chegirmagacha asl narx, so'm. */
   amount: number;
+  /** Chegirmadan keyin to'lanadigan narx, so'm (yaxlitlangan). */
+  final_amount: number;
   discount_percent: number;
   is_active: boolean;
   sort_order: number;
@@ -26,41 +25,62 @@ export interface RawPlanPrice {
 export interface RawSubscriptionPlan {
   id: number;
   name: string;
-  /** 1 oylik narx; bepul tarifda null. */
+  /** 1 oylik to'lanadigan narx (chegirmadan keyin); bepul tarifda null. */
   price_monthly: number | null;
-  /** 12 oylik narx; bepul tarifda null. */
+  /** 12 oylik to'lanadigan narx (chegirmadan keyin); bepul tarifda null. */
   price_yearly: number | null;
   currency: "UZS";
   recommended: boolean;
+  /** Yaratilgandan keyin o'zgarmaydi; bepul tarifda narx bo'lmaydi. */
   is_free: boolean;
-  /** Ro'yxatdan o'tganda beriladigan tarif — o'chirib bo'lmaydi. */
+  /** Ro'yxatdan o'tganda beriladigan tarif — o'chirib ham, o'chirib qo'yib ham bo'lmaydi. */
   is_default: boolean;
   is_active: boolean;
   sort_order: number;
   limits: RawPlanLimits;
+  /** O'chirilmagan narxlar, nofaollari ham. */
   prices: RawPlanPrice[];
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
 }
 
-/** Formadagi bitta davr narxi: `id` serverda beriladi. */
+/** POST /{planID}/prices va yaratishdagi `prices[]`. Har bir muddat bir marta. */
 export interface PlanPriceInput {
   duration_months: PlanDurationMonths;
+  /** Chegirmagacha asl narx, so'm (≥ 1). */
   amount: number;
-  discount_percent: number;
-  is_active: boolean;
+  /** 0..99 */
+  discount_percent?: number;
+  is_active?: boolean;
+  sort_order?: number;
 }
 
-/** POST /admin/subscription-plans va PATCH (qisman) — `{ data: ... }` ichida yuboriladi. */
-export interface PlanInput {
+/** PATCH /{planID}/prices/{priceID} — kamida bitta maydon. Narxni o'chirish yo'q, faqat `is_active: false`. */
+export interface UpdatePlanPriceInput {
+  amount?: number;
+  discount_percent?: number;
+  is_active?: boolean;
+  sort_order?: number;
+}
+
+/** POST /subscription-plans. Faol pullik tarifga kamida bitta faol narx kerak. */
+export interface CreatePlanInput {
   name: string;
-  recommended: boolean;
-  is_active: boolean;
-  sort_order: number;
+  currency?: "UZS";
+  is_free?: boolean;
+  is_active?: boolean;
+  is_recommended?: boolean;
+  sort_order?: number;
   limits: RawPlanLimits;
-  /** Narxlar to'liq almashtiriladi; `price_monthly`/`price_yearly` serverda shulardan hisoblanadi. */
-  prices: PlanPriceInput[];
+  prices?: PlanPriceInput[];
 }
 
-export type UpdatePlanInput = Partial<PlanInput>;
+/** PATCH /{planID} — kamida bitta maydon. Narxlar bu yerda emas (alohida endpoint'lar), `is_free` o'zgarmaydi. */
+export interface UpdatePlanInput {
+  name?: string;
+  is_active?: boolean;
+  is_recommended?: boolean;
+  sort_order?: number;
+  limits?: Partial<RawPlanLimits>;
+}

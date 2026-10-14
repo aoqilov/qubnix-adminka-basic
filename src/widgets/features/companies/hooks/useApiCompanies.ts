@@ -1,10 +1,10 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { companiesApi } from "@/api/companies/companies.api";
-import type { ListCompaniesParams } from "@/api/companies/companies.types";
+import type { CompanyHistoryParams, ListCompaniesParams } from "@/api/companies/companies.types";
 
 export const COMPANIES_KEYS = {
   list: (params: ListCompaniesParams) => ["companies", "list", params] as const,
-  orders: (companyId: number) => ["companies", "orders", companyId] as const,
+  history: (params: CompanyHistoryParams) => ["companies", "history", params] as const,
 };
 
 export function useCompanies(params: ListCompaniesParams) {
@@ -15,10 +15,13 @@ export function useCompanies(params: ListCompaniesParams) {
   });
 }
 
-export function useCompanyOrders(companyId: number | null) {
+/** `companyId` null bo'lsa so'rov ketmaydi (drawer yopiq). */
+export function useCompanyHistory(companyId: string | null, page: number, limit: number) {
+  const params: CompanyHistoryParams = { organization_id: companyId ?? undefined, page, limit };
   return useQuery({
-    queryKey: COMPANIES_KEYS.orders(companyId ?? 0),
-    queryFn: () => companiesApi.orders(companyId as number),
+    queryKey: COMPANIES_KEYS.history(params),
+    queryFn: () => companiesApi.history(params),
+    // keepPreviousData yo'q — boshqa kompaniya ochilganda oldingisining voqealari ko'rinmasin.
     enabled: companyId !== null,
   });
 }

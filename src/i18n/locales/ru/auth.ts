@@ -15,7 +15,6 @@ const auth = {
   submitting: "Вход...",
   invalidCredentials: "Неверный логин или пароль",
   sessionExpired: "Сессия истекла, войдите снова",
-  mockHint: "Демо-доступ (mock-данные):",
 };
 
 export default auth;

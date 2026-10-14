@@ -1,13 +1,24 @@
 import { api } from "@/api-config/axiosInstance";
-import { USE_MOCK } from "@/api-config/mock";
-import { dashboardMock } from "@/api/dashboard/dashboard.mock";
-import type { AdminDashboard } from "@/api/dashboard/dashboard.types";
-import type { ApiEnvelope } from "@/types/api";
+import type {
+  DashboardStats,
+  MonthlyRevenueStats,
+  MonthlyUsersStats,
+  PlanStats,
+} from "@/api/dashboard/dashboard.types";
+import type { ApiEnvelope, DateRangeParams } from "@/types/api";
 
-// Endpoint yo'li — taklif (backend bilan hali kelishilmagan).
+const BASE = "/api/v1/dashboard/stats";
+
 export const dashboardApi = {
-  get: (): Promise<AdminDashboard> =>
-    USE_MOCK
-      ? dashboardMock.get()
-      : api.get<ApiEnvelope<AdminDashboard>>("/api/v1/admin/dashboard").then((r) => r.data.data),
+  stats: (params: DateRangeParams): Promise<DashboardStats> =>
+    api.get<ApiEnvelope<DashboardStats>>(BASE, { params }).then((r) => r.data.data),
+
+  revenueMonthly: (params: DateRangeParams): Promise<MonthlyRevenueStats> =>
+    api.get<ApiEnvelope<MonthlyRevenueStats>>(`${BASE}/revenue/monthly`, { params }).then((r) => r.data.data),
+
+  usersMonthly: (params: DateRangeParams): Promise<MonthlyUsersStats> =>
+    api.get<ApiEnvelope<MonthlyUsersStats>>(`${BASE}/users/monthly`, { params }).then((r) => r.data.data),
+
+  plans: (params: DateRangeParams): Promise<PlanStats> =>
+    api.get<ApiEnvelope<PlanStats>>(`${BASE}/plans`, { params }).then((r) => r.data.data),
 };
